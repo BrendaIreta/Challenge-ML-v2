@@ -21,25 +21,14 @@ data = response.json()
 for usuario in data:
     # Obtener los valores de cada usuario
     nombre = usuario.get('user_name')
-    zip = int(usuario.get('codigo_zip'))
-    numerotarjeta = int(usuario.get('credit_card_num'))
-
-    creartabla = '''
-    CREATE TABLE clientes (
-        nombre varchar (20),
-        zip int primary key not null,
-        numerotarjeta int primary key not null
-    )
-    '''
-
-# Ejecutar la consulta para crear la tabla
-    cursor.execute(creartabla)
+    codigozip = usuario.get('codigo_zip')
+    numerotarjeta = usuario.get('credit_card_num')
 
     # Definir la consulta SQL para insertar los datos
-    consulta = "INSERT INTO extraccion_data_sensible (nombre, zip, numerotarjeta) VALUES (%s, %s, %s)"
+    consulta = "INSERT INTO clientes2 (nombre, codigozip, numerotarjeta) VALUES (%s, %s, %s)"
 
     # Datos a insertar en la tabla
-    datos = (nombre, zip, numerotarjeta)
+    datos = (nombre, codigozip, numerotarjeta)
 
     # Ejecutar la consulta con los datos
     cursor.execute(consulta, datos)
