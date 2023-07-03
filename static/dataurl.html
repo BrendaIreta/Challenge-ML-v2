@@ -1,0 +1,24 @@
+<!-- dataurl.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Desencriptación de datos</title>
+</head>
+<body>
+    <h1>Desencriptación de datos</h1>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Nombre de usuario</th>
+            <th>Código ZIP</th>
+        </tr>
+        {% for entry in data %}
+        <tr>
+            <td>{{ entry.id }}</td>
+            <td>{{ entry.user_name }}</td>
+            <td>{{ entry.codigo_zip }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

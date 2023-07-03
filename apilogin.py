@@ -1,79 +1,115 @@
 from flask import Flask, request, redirect, url_for
-import sqlite3
+from sqlalchemy import create_engine, Column, String
+from db import Base
+from sqlalchemy.orm import sessionmaker
 import requests
+from cryptography.fernet import Fernet
 
 app = Flask(__name__)
+key = b'your-secret-key'  # Clave de encriptación (reemplazar por tu propia clave generada en genkey.py)
+cipher_suite = Fernet(key)
 
+class Credenciales(Base):
+    __tablename__ = 'credenciales'
+    username = Column(String, primary_key=True)
+    password = Column(String)
+
+    def decrypt_password(self):
+        decrypted_password = cipher_suite.decrypt(self.password.encode()).decode()
+        return decrypted_password
+
+class DatosURL(Base):
+    __tablename__ = 'datosurl'
+    id = Column(String, primary_key=True)
+    user_name = Column(String)
+    codigo_zip = Column(String)
+
+    def encrypt_data(self):
+        encrypted_data = {}
+        encrypted_data['id'] = cipher_suite.encrypt(self.id.encode()).decode()
+        encrypted_data['user_name'] = cipher_suite.encrypt(self.user_name.encode()).decode()
+        encrypted_data['codigo_zip'] = cipher_suite.encrypt(self.codigo_zip.encode()).decode()
+        return encrypted_data
+    
 class UserAuthentication:
     def __init__(self, db_file):
         self.db_file = db_file
-        self.connection = None
+        self.engine = None
+        self.session = None
 
     def connect(self):
-        self.connection = sqlite3.connect(self.db_file)
+        self.engine = create_engine('sqlite:///' + self.db_file)
+        Base.metadata.create_all(self.engine)
+        Session = sessionmaker(bind=self.engine)
+        self.session = Session()
 
     def disconnect(self):
-        if self.connection:
-            self.connection.close()
+        if self.session:
+            self.session.close()
 
     def get_user_credentials(self):
-        if not self.connection:
-            raise Exception("No se ha establecido una conexión a la base de datos.")
-
-        cursor = self.connection.cursor()
-        cursor.execute("SELECT username, password FROM credenciales")
-
-        return cursor.fetchall()
+        return self.session.query(Credenciales).all()
 
     def authenticate_user(self, form_username, form_password):
         user_credentials = self.get_user_credentials()
 
-        for (username, password) in user_credentials:
-            if username == form_username and password == form_password:
+        for user in user_credentials:
+            if user.username == form_username and user.decrypt_password() == form_password:
                 return True
 
         return False
-    
+
     def insert_data(self, data):
-        if not self.connection:
-            raise Exception("No se ha establecido una conexión a la base de datos.")
+        for usuario in data:
+            datos_url = DatosURL(
+                id=self.encrypt_field(usuario['id']),
+                user_name=self.encrypt_field(usuario['user_name']),
+                codigo_zip=self.encrypt_field(usuario['codigo_zip'])
+            )
+            encrypted_data = datos_url.encrypt_data()
+            datos_url.id = encrypted_data['id']
+            datos_url.user_name = encrypted_data['user_name']
+            datos_url.codigo_zip = encrypted_data['codigo_zip']
+            self.session.add(datos_url)
 
-        cursor = self.connection.cursor()
-        query = "INSERT INTO datos (campo1, campo2) VALUES (?, ?)"
-        cursor.executemany(query, data)
-        self.connection.commit()
-
+        self.session.commit()
 
 db_connector = UserAuthentication("credenciales.sqlite")
 db_connector.connect()
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/static', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         form_username = request.form.get('username')
         form_password = request.form.get('password')
 
         if db_connector.authenticate_user(form_username, form_password):
-            # Los datos coinciden, realizar acciones adicionales
+            # Los datos coinciden
             return redirect(url_for('success'))
         
         return "Credenciales inválidas"
-     # Si el método de solicitud es GET, mostrar el formulario
-    return '''
-        <form method="POST">
-            <input type="text" name="username" placeholder="Nombre de usuario"><br>
-            <input type="password" name="password" placeholder="Contraseña"><br>
-            <input type="submit" value="Iniciar sesión">
-        </form>
-    '''
-@app.route('/success')
+    
+    # Si el método de solicitud es GET, mostrar el formulario
+    return app.send_static_file('index.html')
+
+@app.route('/static')
 def success():
-     # Obtener datos de la URL específica
+    # Obtener datos de la URL específica
     url = 'https://62433a7fd126926d0c5d296b.mockapi.io/api/v1/usuarios'
     response = requests.get(url)
+    
     if response.status_code == 200:
         data = response.json()
         db_connector.insert_data(data)
-        return "Inicio de sesión exitoso. Datos insertados en la base de datos."
+        return redirect(url_for('exito'))  # Redirigir a la ruta '/static/exito'
     else:
         return f"Error al obtener los datos. Código de estado: {response.status_code}"
+    
+@app.route('/static/exito')
+def exito():
+    return app.send_static_file('exito.html')
+
+
+if __name__ == '__main__':
+    app.run()
+

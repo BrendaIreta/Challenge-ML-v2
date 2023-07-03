@@ -1,7 +1,6 @@
 import db
 
-from sqlalchemy import Column, Integer, String, String
-
+from sqlalchemy import Column, Integer, String
 
 class Credenciales(db.Base):
     __tablename__ = 'credenciales'
