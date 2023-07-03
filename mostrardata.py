@@ -1,0 +1,60 @@
+from flask import Flask, render_template
+from sqlalchemy import create_engine, Column, String
+from db import Base
+from sqlalchemy.orm import sessionmaker
+from cryptography.fernet import Fernet
+
+app = Flask(__name__)
+
+# Clave de encriptación (reemplazar por tu propia clave generada en genkey.py)
+key = b'your-secret-key'
+cipher_suite = Fernet(key)
+
+class DatosURL(Base):
+    __tablename__ = 'datosurl'
+    id = Column(String, primary_key=True)
+    user_name = Column(String)
+    codigo_zip = Column(String)
+
+    def decrypt_data(self):
+        decrypted_data = {}
+        decrypted_data['id'] = self.id
+        decrypted_data['user_name'] = cipher_suite.decrypt(self.user_name.encode()).decode()
+        decrypted_data['codigo_zip'] = cipher_suite.decrypt(self.codigo_zip.encode()).decode()
+        return decrypted_data
+
+
+class DatabaseConnector:
+    def __init__(self, db_file):
+        self.db_file = db_file
+        self.engine = None
+        self.session = None
+
+    def connect(self):
+        self.engine = create_engine('sqlite:///' + self.db_file)
+        Base.metadata.create_all(self.engine)
+        Session = sessionmaker(bind=self.engine)
+        self.session = Session()
+
+    def disconnect(self):
+        if self.session:
+            self.session.close()
+
+    def get_data(self):
+        data = self.session.query(DatosURL).all()
+        decrypted_data = [entry.decrypt_data() for entry in data]
+        return decrypted_data
+
+
+db_connector = DatabaseConnector("credenciales.sqlite")
+db_connector.connect()
+
+
+@app.route('/static')
+def mostardata():
+    data = db_connector.get_data()
+    return render_template('dataurl.html', data=data)
+
+
+if __name__ == '__main__':
+    app.run()

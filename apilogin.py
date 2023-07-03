@@ -1,5 +1,5 @@
 from flask import Flask, request, redirect, url_for
-from sqlalchemy import create_engine, Column, String
+from sqlalchemy import create_engine, Column, String, Float, Integer
 from db import Base
 from sqlalchemy.orm import sessionmaker
 import requests
@@ -23,12 +23,28 @@ class DatosURL(Base):
     id = Column(String, primary_key=True)
     user_name = Column(String)
     codigo_zip = Column(String)
+    credit_card_num = Column(Integer)
+    credit_card_cvv = Column(Integer)
+    cuenta_numero = Column(Integer)
+    direccion = Column(String)
+    cuenta_numero = Column(Integer)
+    direccion = Column(String)
+    foto_dni = Column(String)
+    ip = Column(Float)
+    cantidad_compras_realizadas = Column(Integer)
 
     def encrypt_data(self):
         encrypted_data = {}
         encrypted_data['id'] = cipher_suite.encrypt(self.id.encode()).decode()
         encrypted_data['user_name'] = cipher_suite.encrypt(self.user_name.encode()).decode()
         encrypted_data['codigo_zip'] = cipher_suite.encrypt(self.codigo_zip.encode()).decode()
+        encrypted_data['credit_card_num'] = cipher_suite.encrypt(self.credit_card_num.encode()).decode()
+        encrypted_data['credit_card_cvv'] = cipher_suite.encrypt(self.credit_card_cvv.encode()).decode()
+        encrypted_data['cuenta_numero'] = cipher_suite.encrypt(self.cuenta_numero.encode()).decode()
+        encrypted_data['direccion'] = cipher_suite.encrypt(self.direccion.encode()).decode()
+        encrypted_data['foto_dni'] = cipher_suite.encrypt(self.foto_dni.encode()).decode()
+        encrypted_data['ip'] = cipher_suite.encrypt(self.ip.encode()).decode()
+        encrypted_data['cantidad_compras_realizadas'] = cipher_suite.encrypt(self.cantidad_compras_realizadas.encode()).decode()
         return encrypted_data
     
 class UserAuthentication:
@@ -65,11 +81,26 @@ class UserAuthentication:
                 id=self.encrypt_field(usuario['id']),
                 user_name=self.encrypt_field(usuario['user_name']),
                 codigo_zip=self.encrypt_field(usuario['codigo_zip'])
+                credit_card_num=self.encrypt_field(usuario['credit_card_num'])
+                credit_card_cvv=self.encrypt_field(usuario['credit_card_cvv'])
+                cuenta_numero=self.encrypt_field(usuario['cuenta_numero'])
+                direccion=self.encrypt_field(usuario['direccion'])
+                foto_dni=self.encrypt_field(usuario['foto_dni'])
+                ip=self.encrypt_field(usuario['ip'])
+                cantidad_compras_realizadas=self.encrypt_field(usuario['cantidad_compras_realizadas'])
             )
+
             encrypted_data = datos_url.encrypt_data()
             datos_url.id = encrypted_data['id']
             datos_url.user_name = encrypted_data['user_name']
             datos_url.codigo_zip = encrypted_data['codigo_zip']
+            datos_url.credit_card_num = encrypted_data['credit_card_num']
+            datos_url.credit_card_cvv = encrypted_data['credit_card_cvv']
+            datos_url.cuenta_numero = encrypted_data['cuenta_numero']
+            datos_url.direccion = encrypted_data['direccion']
+            datos_url.foto_dni = encrypted_data['foto_dni']
+            datos_url.ip = encrypted_data['ip']
+            datos_url.cantidad_compras_realizadas = encrypted_data['cantidad_compras_realizadas']
             self.session.add(datos_url)
 
         self.session.commit()

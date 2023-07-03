@@ -11,12 +11,28 @@
             <th>ID</th>
             <th>Nombre de usuario</th>
             <th>Código ZIP</th>
+            <th>Número de tarjeta</th>
+            <th>CVV</th>
+            <th>Numero de cuenta</th>
+            <th>Direccion</th>
+            <th>Foto DNI</th>
+            <th>IP</th>
+            <th>Cantidad de compras realizadas</th>
         </tr>
         {% for entry in data %}
         <tr>
             <td>{{ entry.id }}</td>
             <td>{{ entry.user_name }}</td>
             <td>{{ entry.codigo_zip }}</td>
+            <td>{{ entry.credit_card_num }}</td>
+            <td>{{ entry.credit_card_cvv }}</td>
+            <td>{{ entry.cuenta_numero }}</td>
+            <td>{{ entry.direccion }}</td>
+            <td>{{ entry.foto_dni }}</td>
+            <td>{{ entry.ip }}</td>
+            <td>{{ entry.cantidad_compras_realizadas }}</td>
+            
+            
         </tr>
         {% endfor %}
     </table>
