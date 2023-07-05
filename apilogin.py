@@ -27,8 +27,6 @@ class DatosURL(Base):
     credit_card_cvv = Column(Integer)
     cuenta_numero = Column(Integer)
     direccion = Column(String)
-    cuenta_numero = Column(Integer)
-    direccion = Column(String)
     foto_dni = Column(String)
     ip = Column(Float)
     cantidad_compras_realizadas = Column(Integer)
