@@ -31,4 +31,6 @@ altausuario.py
 apilogin.py
 mostrardata.py
 
+Los archivos que se seleccionaron para trabajar con esta api sólo fueron los que se enlistan a continuación:
+    user_name, codigo_zip, credit_card_num, credit_card_cvv, cuenta_numero, direccion, foto_dni, ip, cantidad_compras_realizadas
 
