@@ -26,7 +26,7 @@ Creación de sesión y los modelos: La cual se creo en el fichero db.py utilizan
 
 Modelos de la base de datos: Se encuentra en models.py, el cual contiene la estructura más básica para contener el username y password.
 
-Y por último, la encriptación de los datos se realiza de forma manual, por medio de la aplicación genkey.py, se obtiene la llave para encriptar la información, la cual se debe sustituir en los archivos. donde se indica:
+Y por último, la encriptación de los datos se realiza de forma manual, por medio de la aplicación genkey.py, se obtiene la llave para encriptar la información, la cual se debe sustituir en los archivos, directamente en el código donde se indica, o se declara la variable key = b'your-secret-key', en los archivos:
 altausuario.py
 apilogin.py
 mostrardata.py
