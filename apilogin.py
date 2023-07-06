@@ -78,15 +78,14 @@ class UserAuthentication:
             datos_url = DatosURL(
                 id=self.encrypt_field(usuario['id']),
                 user_name=self.encrypt_field(usuario['user_name']),
-                codigo_zip=self.encrypt_field(usuario['codigo_zip'])
-                credit_card_num=self.encrypt_field(usuario['credit_card_num'])
-                credit_card_cvv=self.encrypt_field(usuario['credit_card_cvv'])
-                cuenta_numero=self.encrypt_field(usuario['cuenta_numero'])
-                direccion=self.encrypt_field(usuario['direccion'])
-                foto_dni=self.encrypt_field(usuario['foto_dni'])
-                ip=self.encrypt_field(usuario['ip'])
-                cantidad_compras_realizadas=self.encrypt_field(usuario['cantidad_compras_realizadas'])
-            )
+                codigo_zip=self.encrypt_field(usuario['codigo_zip']),
+                credit_card_num=self.encrypt_field(usuario['credit_card_num']),
+                credit_card_cvv=self.encrypt_field(usuario['credit_card_cvv']),
+                cuenta_numero=self.encrypt_field(usuario['cuenta_numero']),
+                direccion=self.encrypt_field(usuario['direccion']),
+                foto_dni=self.encrypt_field(usuario['foto_dni']),
+                ip=self.encrypt_field(usuario['ip']),
+                cantidad_compras_realizadas=self.encrypt_field(usuario['cantidad_compras_realizadas']))
 
             encrypted_data = datos_url.encrypt_data()
             datos_url.id = encrypted_data['id']
